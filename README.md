@@ -7,7 +7,5 @@ Prototipo interactivo de cuatro subfuncionalidades principales del sistema comun
 - Mapa de riesgo
 - Validacion de identidad
 
-## Como visualizarlo
 
-Abra el archivo `prototipo_barrio_seguro_validacion.html` en cualquier navegador web.
 
