@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prototipo 1.8.1 - Barrio Seguro</title>
+  <style>
+    :root {
+      --ink: #17202a;
+      --muted: #5a6876;
+      --line: #d9e0e7;
+      --paper: #f6f8fa;
+      --panel: #ffffff;
+      --blue: #1f6feb;
+      --red: #c4332f;
+      --green: #178f5a;
+      --yellow: #c78313;
+      --teal: #137b80;
+      --violet: #6652bf;
+      --shadow: 0 12px 30px rgba(23, 32, 42, .10);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      background: #111820;
+      color: #f5f8fb;
+      padding: 24px 18px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+    }
+
+    .brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: #f3c64f;
+      color: #111820;
+      font-weight: 700;
+    }
+
+    .brand h1 {
+      font-size: 18px;
+      line-height: 1.2;
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    .brand p {
+      margin: 3px 0 0;
+      color: #b9c5d1;
+      font-size: 13px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav button {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 10px;
+      align-items: center;
+      width: 100%;
+      min-height: 44px;
+      text-align: left;
+      padding: 10px 12px;
+      color: #dbe6f1;
+      background: transparent;
+      border-radius: 8px;
+    }
+
+    .nav button.active,
+    .nav button:hover {
+      background: #203040;
+      color: #ffffff;
+    }
+
+    .nav .ico {
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border-radius: 6px;
+      color: #111820;
+      background: #dbe6f1;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    main {
+      padding: 28px;
+      min-width: 0;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      margin-bottom: 22px;
+    }
+
+    .topbar h2 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+
+    .topbar p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      max-width: 820px;
+      line-height: 1.5;
+    }
+
+    .status-strip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .chip {
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .screen {
+      display: none;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, .8fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .panel h3 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .panel p {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: #293744;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid #c9d3dd;
+      border-radius: 6px;
+      padding: 10px 11px;
+      color: var(--ink);
+      background: #fff;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 116px;
+      resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(31, 111, 235, .14);
+    }
+
+    .wide { grid-column: 1 / -1; }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .btn {
+      min-height: 42px;
+      border-radius: 6px;
+      padding: 0 14px;
+      color: #fff;
+      background: var(--blue);
+      font-weight: 700;
+    }
+
+    .btn.secondary {
+      color: var(--ink);
+      background: #eef2f6;
+      border: 1px solid var(--line);
+    }
+
+    .btn.danger { background: var(--red); }
+    .btn.good { background: var(--green); }
+    .btn.warn { background: var(--yellow); }
+
+    .panic-wrap {
+      display: grid;
+      place-items: center;
+      min-height: 430px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.86), rgba(255,255,255,.86)),
+        repeating-linear-gradient(45deg, #f2f5f8 0, #f2f5f8 12px, #e7edf3 12px, #e7edf3 24px);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panic-btn {
+      width: min(64vw, 300px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 30%, #ff766f, #c4332f 58%, #8f1e1c);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      box-shadow: 0 22px 40px rgba(196, 51, 47, .28), inset 0 -12px 24px rgba(0,0,0,.24);
+      user-select: none;
+      transition: transform .15s ease;
+    }
+
+    .panic-btn:active {
+      transform: scale(.98);
+    }
+
+    .panic-btn strong {
+      display: block;
+      font-size: 34px;
+      letter-spacing: 0;
+    }
+
+    .panic-btn span {
+      display: block;
+      font-size: 14px;
+      margin-top: 10px;
+      opacity: .9;
+    }
+
+    .panic-state {
+      position: absolute;
+      left: 16px;
+      right: 16px;
+      bottom: 16px;
+      min-height: 58px;
+      border-radius: 8px;
+      background: #111820;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+    }
+
+    .metric-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcfd;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .metric span {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .message {
+      min-height: 44px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #eef2f6;
+      color: #293744;
+      line-height: 1.4;
+    }
+
+    .message.error {
+      background: #fff1f0;
+      color: #91231f;
+      border: 1px solid #f2bfbd;
+    }
+
+    .message.ok {
+      background: #ebf8f2;
+      color: #11613d;
+      border: 1px solid #b8e2ce;
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(52px, 1fr));
+      gap: 8px;
+    }
+
+    .evidence {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      border: 1px dashed #9aa8b6;
+      background: #f8fafc;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+      padding: 6px;
+    }
+
+    .evidence.filled {
+      border-style: solid;
+      background: #e9f3ff;
+      color: #1557b0;
+      font-weight: 700;
+    }
+
+    .map-shell {
+      min-height: 520px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #edf4f2;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .street {
+      position: absolute;
+      background: rgba(255,255,255,.92);
+      border: 1px solid #cdd8d4;
+    }
+
+    .s1 { left: 8%; right: 8%; top: 18%; height: 34px; }
+    .s2 { left: 8%; right: 8%; top: 48%; height: 34px; }
+    .s3 { left: 8%; right: 8%; top: 76%; height: 34px; }
+    .s4 { top: 8%; bottom: 8%; left: 22%; width: 34px; }
+    .s5 { top: 8%; bottom: 8%; left: 54%; width: 34px; }
+    .s6 { top: 8%; bottom: 8%; left: 78%; width: 34px; }
+
+    .zone {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(10px);
+      opacity: .75;
+    }
+
+    .z1 { width: 190px; height: 190px; left: 9%; top: 35%; background: rgba(196,51,47,.52); }
+    .z2 { width: 155px; height: 155px; right: 11%; top: 12%; background: rgba(199,131,19,.48); }
+    .z3 { width: 120px; height: 120px; left: 47%; bottom: 11%; background: rgba(23,143,90,.34); }
+
+    .pin {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      border: 3px solid #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,.22);
+    }
+
+    .pin span {
+      display: block;
+      transform: rotate(45deg);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      line-height: 24px;
+    }
+
+    .pin.red { background: var(--red); }
+    .pin.yellow { background: var(--yellow); }
+    .pin.blue { background: var(--blue); }
+    .pin.green { background: var(--green); }
+
+    .map-card {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      width: min(320px, calc(100% - 32px));
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .map-card h4 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+
+    .map-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .request {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcfd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .request strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .request small {
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      border-radius: 999px;
+      padding: 0 9px;
+      background: #eef2f6;
+      color: #293744;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge.pending { background: #fff5df; color: #775008; }
+    .badge.active { background: #e7f7ef; color: #0f6b43; }
+    .badge.rejected { background: #fff1f0; color: #91231f; }
+
+    .doc-viewer {
+      min-height: 300px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      border: 1px solid #cad5df;
+      background: #f7fafc;
+      overflow: hidden;
+    }
+
+    .doc-paper {
+      width: 190px;
+      height: 244px;
+      background: #fff;
+      border: 1px solid #cfd8e1;
+      box-shadow: 0 12px 20px rgba(0,0,0,.12);
+      padding: 16px;
+      transform: scale(var(--zoom, 1)) rotate(var(--rot, 0deg));
+      transition: transform .2s ease;
+      transform-origin: center;
+    }
+
+    .doc-photo {
+      height: 70px;
+      width: 58px;
+      background: #c8d8e8;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+
+    .doc-line {
+      height: 9px;
+      background: #dce4ec;
+      border-radius: 999px;
+      margin: 8px 0;
+    }
+
+    .doc-line.short { width: 62%; }
+    .doc-line.mid { width: 82%; }
+
+    .audit-log {
+      max-height: 210px;
+      overflow: auto;
+      display: grid;
+      gap: 8px;
+      padding-right: 4px;
+    }
+
+    .log-entry {
+      border-left: 4px solid var(--teal);
+      background: #eef8f8;
+      border-radius: 6px;
+      padding: 9px 10px;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+      line-height: 1.35;
+      font-size: 14px;
+    }
+
+    th {
+      background: #edf2f7;
+      color: #293744;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+
+    .finding {
+      border-left: 4px solid var(--violet);
+      background: #f2f0ff;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      color: #30285f;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 920px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: relative;
+        height: auto;
+      }
+
+      .nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      main {
+        padding: 18px;
+      }
+
+      .topbar {
+        display: block;
+      }
+
+      .status-strip {
+        justify-content: flex-start;
+        margin-top: 12px;
+      }
+
+      .grid,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+    }
+
+    @media (max-width: 560px) {
+      .nav {
+        grid-template-columns: 1fr;
+      }
+
+      .panic-state {
+        position: static;
+        margin: 12px;
+        display: block;
+      }
+
+      .panic-state .btn {
+        margin-top: 10px;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">BS</div>
+        <div>
+          <h1>Barrio Seguro</h1>
+          <p>Aplicación comunitaria</p>
+        </div>
+      </div>
+      <nav class="nav" aria-label="Subfuncionalidades prototipadas">
+        <button class="active" data-screen="panic"><span class="ico">1</span><span>Botón de pánico</span></button>
+        <button data-screen="incident"><span class="ico">2</span><span>Reporte de incidente</span></button>
+        <button data-screen="map"><span class="ico">3</span><span>Mapa de riesgo</span></button>
+        <button data-screen="identity"><span class="ico">4</span><span>Validación de identidad</span></button>
+      </nav>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <div>
+          <h2 id="screenTitle">Activación rápida del Botón de Pánico</h2>
+          <p id="screenSubtitle">Envía una alerta inmediata con ubicación para que el comité y los vecinos cercanos puedan actuar.</p>
+        </div>
+        <div class="status-strip">
+          <span class="chip">Rol: Vecino / Administrador</span>
+          <span class="chip">Barrio San Roque</span>
+        </div>
+      </header>
+
+      <section id="panic" class="screen active">
+        <div class="grid">
+          <div class="panel">
+            <h3>Inicio móvil del vecino</h3>
+            <div class="panic-wrap">
+              <button class="panic-btn" id="panicButton" aria-label="Mantener presionado para activar alerta">
+                <span>
+                  <strong>SOS</strong>
+                  <span>Mantener 2 segundos o doble toque</span>
+                </span>
+              </button>
+              <div class="panic-state">
+                <div id="panicMessage">Estado: sin alerta activa. Esperando acción del vecino.</div>
+                <button class="btn secondary" id="cancelAlert">Desactivar con PIN</button>
+              </div>
+            </div>
+          </div>
+          <aside class="panel">
+            <h3>Estado de la emergencia</h3>
+            <div class="metric-list">
+              <div class="metric"><b>Confirmación</b><span id="holdStatus">No activado</span></div>
+              <div class="metric"><b>Ubicación GPS</b><span id="gpsStatus">Pendiente</span></div>
+              <div class="metric"><b>Tiempo de aviso</b><span id="pushStatus">0.0 s</span></div>
+              <div class="metric"><b>Estado</b><span id="alertStatus">Inactivo</span></div>
+              <div class="metric"><b>Protección de datos</b><span>Conexión segura</span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="incident" class="screen">
+        <div class="grid">
+          <div class="panel">
+            <h3>Nuevo reporte detallado</h3>
+            <form id="incidentForm">
+              <div class="form-grid">
+                <label>Categoría
+                  <select id="category">
+                    <option value="">Seleccione una categoría</option>
+                    <option>Robo</option>
+                    <option>Actividad sospechosa</option>
+                    <option>Luminaria dañada</option>
+                    <option>Infraestructura</option>
+                    <option>Otro</option>
+                  </select>
+                </label>
+                <label>Ubicación GPS
+                  <input id="location" value="-0.2211, -78.5132" aria-label="Coordenadas GPS">
+                </label>
+                <label class="wide">Descripción
+                  <textarea id="description" placeholder="Describa qué ocurrió, lugar visible y referencia cercana"></textarea>
+                </label>
+                <label>Corregir ubicación manualmente
+                  <select id="manualLocation">
+                    <option>No, usar GPS</option>
+                    <option>Sí, ajustar punto en mapa</option>
+                  </select>
+                </label>
+                <label>Fecha y hora
+                  <input id="incidentDate" readonly>
+                </label>
+              </div>
+              <p><strong>Evidencia multimedia:</strong> hasta cinco fotografías o un video corto.</p>
+              <div class="evidence-grid" id="evidenceGrid">
+                <button type="button" class="evidence">Agregar</button>
+                <button type="button" class="evidence">Agregar</button>
+                <button type="button" class="evidence">Agregar</button>
+                <button type="button" class="evidence">Agregar</button>
+                <button type="button" class="evidence">Agregar</button>
+              </div>
+              <div class="btn-row">
+                <button type="submit" class="btn">Guardar reporte</button>
+                <button type="button" class="btn secondary" id="fillIncident">Cargar ejemplo</button>
+              </div>
+            </form>
+          </div>
+          <aside class="panel">
+            <h3>Resumen del reporte</h3>
+            <div id="incidentResult" class="message">Complete los campos obligatorios para guardar el reporte.</div>
+            <div class="metric-list" style="margin-top: 12px;">
+              <div class="metric"><b>Código único</b><span id="incidentCode">Sin generar</span></div>
+              <div class="metric"><b>Estado inicial</b><span>Pendiente</span></div>
+              <div class="metric"><b>Notificación al comité</b><span id="committeeNotice">Pendiente</span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="map" class="screen">
+        <div class="grid">
+          <div class="panel">
+            <h3>Mapa de calor e historial</h3>
+            <div class="form-grid" style="margin-bottom: 14px;">
+              <label>Tipo de incidente
+                <select id="mapType">
+                  <option>Todos</option>
+                  <option>Robo</option>
+                  <option>Actividad sospechosa</option>
+                  <option>Luminaria dañada</option>
+                </select>
+              </label>
+              <label>Estado
+                <select id="mapStatus">
+                  <option>Todos</option>
+                  <option>Pendiente</option>
+                  <option>En proceso</option>
+                  <option>Resuelto</option>
+                </select>
+              </label>
+            </div>
+            <div class="map-shell" id="riskMap" aria-label="Mapa de riesgo interactivo">
+              <div class="street s1"></div><div class="street s2"></div><div class="street s3"></div>
+              <div class="street s4"></div><div class="street s5"></div><div class="street s6"></div>
+              <div class="zone z1"></div><div class="zone z2"></div><div class="zone z3"></div>
+              <button class="pin red" data-title="Robo reportado" data-detail="Sector mercado, 21:35, estado En proceso" style="left: 23%; top: 43%;"><span>R</span></button>
+              <button class="pin yellow" data-title="Actividad sospechosa" data-detail="Predio baldío, 22:10, estado Pendiente" style="right: 23%; top: 21%;"><span>A</span></button>
+              <button class="pin blue" data-title="Luminaria dañada" data-detail="Calle secundaria, 19:05, estado Pendiente" style="left: 55%; bottom: 19%;"><span>L</span></button>
+              <button class="pin green" data-title="Infraestructura resuelta" data-detail="Parque central, 16:20, estado Resuelto" style="left: 38%; top: 18%;"><span>I</span></button>
+              <div class="map-card" id="mapCard">
+                <h4>Seleccione un punto</h4>
+                <p>El sistema mostrará categoría, fecha, estado y descripción resumida del incidente.</p>
+              </div>
+            </div>
+          </div>
+          <aside class="panel">
+            <h3>Detalle del mapa</h3>
+            <div class="metric-list">
+              <div class="metric"><b>Zonas críticas</b><span>Por intensidad</span></div>
+              <div class="metric"><b>Filtros activos</b><span id="filterState">Sin filtros</span></div>
+              <div class="metric"><b>Punto seleccionado</b><span id="selectedPoint">Ningún punto</span></div>
+              <div class="metric"><b>Actualización</b><span>Automática</span></div>
+              <div class="metric"><b>Carga</b><span>Rápida</span></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="identity" class="screen">
+        <div class="grid">
+          <div class="panel">
+            <h3>Solicitudes de registro pendientes</h3>
+            <div class="list" id="requestList">
+              <div class="request" data-name="María Guamán" data-status="Pendiente">
+                <div><strong>María Guamán</strong><small>Enviado: 28/06/2026 · Sector mercado</small></div>
+                <span class="badge pending">Pendiente</span>
+              </div>
+              <div class="request" data-name="Carlos Vera" data-status="Pendiente">
+                <div><strong>Carlos Vera</strong><small>Enviado: 28/06/2026 · Calle Rocafuerte</small></div>
+                <span class="badge pending">Pendiente</span>
+              </div>
+              <div class="request" data-name="Ana Ruiz" data-status="Pendiente">
+                <div><strong>Ana Ruiz</strong><small>Enviado: 27/06/2026 · Parque central</small></div>
+                <span class="badge pending">Pendiente</span>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn good" id="approveUser">Aprobar</button>
+              <button class="btn danger" id="rejectUser">Rechazar</button>
+            </div>
+            <label class="wide" style="margin-top: 14px;">Motivo de rechazo
+              <textarea id="rejectReason" placeholder="Obligatorio si rechaza. Mínimo 15 caracteres."></textarea>
+            </label>
+            <div id="identityMessage" class="message" style="margin-top: 12px;">Seleccione una solicitud y revise los documentos antes de aprobar o rechazar.</div>
+          </div>
+          <aside class="panel">
+            <h3>Visor de documentos</h3>
+            <div class="doc-viewer">
+              <div class="doc-paper" id="docPaper">
+                <div class="doc-photo"></div>
+                <div class="doc-line mid"></div>
+                <div class="doc-line"></div>
+                <div class="doc-line short"></div>
+                <div class="doc-line"></div>
+                <div class="doc-line mid"></div>
+                <div class="doc-line short"></div>
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn secondary" id="zoomDoc">Zoom 200%</button>
+              <button class="btn secondary" id="rotateDoc">Rotar 90°</button>
+            </div>
+            <h3 style="margin-top: 18px;">Bitácora de auditoría</h3>
+            <div class="audit-log" id="auditLog">
+              <div class="log-entry">Sin acciones registradas. Cada aprobación o rechazo guardará administrador, vecino, hora y resolución.</div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    const titles = {
+      panic: ['Botón de Pánico', 'Envía una alerta inmediata con ubicación para que el comité y los vecinos cercanos puedan actuar.'],
+      incident: ['Reporte de Incidentes', 'Registra incidentes con categoría, descripción, ubicación y evidencia multimedia.'],
+      map: ['Mapa de Riesgo', 'Consulta zonas críticas, filtra incidentes y revisa detalles del historial comunitario.'],
+      identity: ['Validación de Identidad', 'Revisa solicitudes de nuevos vecinos y controla el acceso seguro a la aplicación.']
+    };
+
+    document.querySelectorAll('.nav button').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.nav button').forEach(item => item.classList.remove('active'));
+        document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+        button.classList.add('active');
+        const id = button.dataset.screen;
+        document.getElementById(id).classList.add('active');
+        document.getElementById('screenTitle').textContent = titles[id][0];
+        document.getElementById('screenSubtitle').textContent = titles[id][1];
+      });
+    });
+
+    let panicTimer = null;
+    let lastTap = 0;
+
+    function activatePanic() {
+      document.getElementById('holdStatus').textContent = 'Confirmado';
+      document.getElementById('gpsStatus').textContent = '-0.2211, -78.5132';
+      document.getElementById('alertStatus').textContent = 'Activo';
+      document.getElementById('panicMessage').textContent = 'Alerta activa: GPS capturado. Notificando a comité y vecinos cercanos...';
+      let elapsed = 0;
+      const interval = setInterval(() => {
+        elapsed += 0.6;
+        document.getElementById('pushStatus').textContent = elapsed.toFixed(1) + ' s';
+        if (elapsed >= 2.4) {
+          clearInterval(interval);
+          document.getElementById('pushStatus').textContent = '2.4 s';
+          document.getElementById('panicMessage').textContent = 'Emergencia enviada. Ubicación actualizada cada 5 segundos hasta cierre seguro.';
+        }
+      }, 300);
+    }
+
+    const panicButton = document.getElementById('panicButton');
+    panicButton.addEventListener('pointerdown', () => {
+      panicTimer = setTimeout(activatePanic, 2000);
+    });
+    panicButton.addEventListener('pointerup', () => clearTimeout(panicTimer));
+    panicButton.addEventListener('click', () => {
+      const now = Date.now();
+      if (now - lastTap < 360) activatePanic();
+      lastTap = now;
+    });
+    document.getElementById('cancelAlert').addEventListener('click', () => {
+      document.getElementById('holdStatus').textContent = 'No activado';
+      document.getElementById('gpsStatus').textContent = 'Pendiente';
+      document.getElementById('pushStatus').textContent = '0.0 s';
+      document.getElementById('alertStatus').textContent = 'Inactivo';
+      document.getElementById('panicMessage').textContent = 'Alerta cerrada con PIN. Registro enviado a bitácora histórica.';
+    });
+
+    document.getElementById('incidentDate').value = new Date().toLocaleString('es-EC');
+    document.querySelectorAll('.evidence').forEach((slot, index) => {
+      slot.addEventListener('click', () => {
+        slot.classList.add('filled');
+        slot.textContent = index === 4 ? 'Video' : 'Foto ' + (index + 1);
+      });
+    });
+    document.getElementById('fillIncident').addEventListener('click', () => {
+      document.getElementById('category').value = 'Actividad sospechosa';
+      document.getElementById('description').value = 'Dos motos sin placas circulan repetidamente cerca del predio baldío junto al mercado.';
+      document.querySelector('.evidence').click();
+    });
+    document.getElementById('incidentForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const category = document.getElementById('category').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const result = document.getElementById('incidentResult');
+      if (!category || !description) {
+        result.className = 'message error';
+        result.textContent = 'Error de validación: categoría y descripción son obligatorias antes de guardar el reporte.';
+        return;
+      }
+      const code = 'INC-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('incidentCode').textContent = code;
+      document.getElementById('committeeNotice').textContent = 'Enviada';
+      result.className = 'message ok';
+      result.textContent = 'Reporte guardado con código ' + code + '. Estado inicial Pendiente y notificación enviada al Comité Barrial.';
+    });
+
+    document.querySelectorAll('.pin').forEach(pin => {
+      pin.addEventListener('click', () => {
+        document.getElementById('mapCard').innerHTML = '<h4>' + pin.dataset.title + '</h4><p>' + pin.dataset.detail + '</p>';
+        document.getElementById('selectedPoint').textContent = pin.dataset.title;
+      });
+    });
+    function updateFilters() {
+      document.getElementById('filterState').textContent = document.getElementById('mapType').value + ' / ' + document.getElementById('mapStatus').value;
+    }
+    document.getElementById('mapType').addEventListener('change', updateFilters);
+    document.getElementById('mapStatus').addEventListener('change', updateFilters);
+
+    let selectedRequest = 'María Guamán';
+    document.querySelectorAll('.request').forEach(item => {
+      item.addEventListener('click', () => {
+        selectedRequest = item.dataset.name;
+        document.querySelectorAll('.request').forEach(row => row.style.borderColor = 'var(--line)');
+        item.style.borderColor = 'var(--blue)';
+        document.getElementById('identityMessage').className = 'message';
+        document.getElementById('identityMessage').textContent = 'Solicitud seleccionada: ' + selectedRequest + '. Revise cédula y comprobante antes de resolver.';
+      });
+    });
+
+    let zoomed = false;
+    let rotation = 0;
+    document.getElementById('zoomDoc').addEventListener('click', () => {
+      zoomed = !zoomed;
+      document.getElementById('docPaper').style.setProperty('--zoom', zoomed ? 1.55 : 1);
+    });
+    document.getElementById('rotateDoc').addEventListener('click', () => {
+      rotation = (rotation + 90) % 360;
+      document.getElementById('docPaper').style.setProperty('--rot', rotation + 'deg');
+    });
+
+    function addAudit(action, detail) {
+      const log = document.getElementById('auditLog');
+      if (log.firstElementChild && log.firstElementChild.textContent.startsWith('Sin acciones')) log.innerHTML = '';
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.textContent = 'ADM-001 | ' + selectedRequest + ' | ' + new Date().toLocaleString('es-EC') + ' | ' + action + detail;
+      log.prepend(entry);
+    }
+
+    document.getElementById('approveUser').addEventListener('click', () => {
+      document.getElementById('identityMessage').className = 'message ok';
+      document.getElementById('identityMessage').textContent = selectedRequest + ' aprobado. Cuenta Activa y correo de veredicto enviado en menos de 5 segundos.';
+      addAudit('APROBADO', ' | acceso habilitado');
+    });
+
+    document.getElementById('rejectUser').addEventListener('click', () => {
+      const reason = document.getElementById('rejectReason').value.trim();
+      if (reason.length < 15) {
+        document.getElementById('identityMessage').className = 'message error';
+        document.getElementById('identityMessage').textContent = 'Rechazo bloqueado: debe ingresar una justificación de al menos 15 caracteres.';
+        return;
+      }
+      document.getElementById('identityMessage').className = 'message ok';
+      document.getElementById('identityMessage').textContent = selectedRequest + ' rechazado. Cuenta bloqueada, motivo notificado y documentos programados para purga en 48 horas.';
+      addAudit('RECHAZADO', ' | motivo: ' + reason);
+    });
+  </script>
+</body>
+</html>
